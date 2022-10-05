@@ -1,0 +1,1601 @@
+{
+	"info": {
+		"_postman_id": "131f3de6-7329-47b0-8727-3421074b76b8",
+		"name": "Practica 5 -eCOmmerce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23313215"
+	},
+	"item": [
+		{
+			"name": "get /ObeterCategorias 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//beste test valida el codigo de respuesta igual al 200",
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"validar que responda con un body\", function(){",
+							"    pm.response.to.be.withBody",
+							"})",
+							"pm.test(\"validar que el body contenga ciertas palabras\", function(){",
+							"    pm.expect(pm.response.text()).to.include(\"categories\")",
+							"       pm.expect(pm.response.text()).to.include(\"all_label\")",
+							"});",
+							"pm.test(\"validar uno de los header que regresa\", function(){",
+							"    pm.expect(pm.response.headers.get(\"Conten-type\"))",
+							"});",
+							"",
+							"//tarea  hacer test para validar los elementos anteriores ",
+							"",
+							"console.log(pm.response.json().categories[0].all_label)",
+							"pm.test(\"validar que el body contenga all_label en string\", function(){",
+							"  pm.expect(pm.response.json().categories[0].all_label).to.be.a(\"string\")",
+							"  });",
+							"",
+							"console.log(pm.response.json().categories[0].categories[1].code)",
+							"",
+							"pm.test(\"validar que el body contenga code en string\", function(){",
+							"  pm.expect(pm.response.json().categories[0].categories[1].code).to.be.a(\"string\")",
+							" });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "qwertyuiop",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test299_agente@mailinator.com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/public/categories/filter?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"public",
+						"categories",
+						"filter"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "inve1-  listado de categorias por filtro de precios",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().data.urls[1])",
+							"pm.test(\"validar que el body contenga caracteristicas \", function(){",
+							"  pm.expect(pm.response.json().data.urls[1])",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, /'"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"filters\":[{\"price\":\"-60000\",\"category\":\"2020\"},\n    {\"price\":\"60000-80000\",\"category\":\"2020\"},\n    {\"price\":\"80000-100000\",\"category\":\"2020\"},\n    {\"price\":\"100000-150000\",\"category\":\"2020\"},\n    {\"price\":\"150000-\",\"category\":\"2020\"}\n    ]}"
+				},
+				"url": {
+					"raw": "{{url_base}}/urls/v1/public/ad-listing?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"urls",
+						"v1",
+						"public",
+						"ad-listing"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post crear usuario 401",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//crear un correo",
+							"//1. generar pasao random",
+							"var nombre = pm.variables.replaceIn('{{$randomFirstName}}')",
+							"//2, generar caracteres alfanumerico random",
+							"var caracter = pm.variables.replaceIn('{{$randomAlphaNumeric}}')",
+							"//3. generar un correo random",
+							"var correo = nombre + caracter + \"@mailinator.com\"",
+							"",
+							"console.log(correo)",
+							"//4. gaurdar las variables correo como variable de ambiente",
+							"pm.environment.set(\"correo\", correo)",
+							"",
+							"var preencode = (pm.environment.get('correo')).concat(':',(pm.environment.get('password')));",
+							"",
+							"var encoded = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(preencode))",
+							"pm.environment.set('base64',encoded)",
+							"console.log(encoded)",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//beste test valida el codigo de respuesta igual al 200",
+							"pm.test(\"validar el estatus code response 401\", function(){",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"//pm.test(\"validar el tiempo de respuesta\", function(){",
+							"  //  pm.expect(pm.)",
+							"//})",
+							"pm.test(\"validar que responda con un body\", function(){",
+							"    pm.response.to.be.withBody",
+							"})",
+							"pm.test(\"validar que el body contenga ciertas palabras\", function(){",
+							"    pm.expect(pm.response.text()).to.include(\"code\")",
+							"       pm.expect(pm.response.text()).to.include(\"ACCOUNT_VERIFICATION_REQUIRED\")",
+							"});",
+							"pm.test(\"validar uno de los header que regresa\", function(){",
+							"    pm.expect(pm.response.headers.get(\"Conten-type\"))",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{correo}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"account\":{\"email\":\"{{correo}}\"}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1.1/private/accounts?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1.1",
+						"private",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post /IngresarUsuario 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log(pm.response.json().account.account_id)",
+							"pm.environment.set(\"account_id\",pm.response.json().account.account_id)",
+							"",
+							"console.log(pm.response.json().access_token)",
+							"pm.environment.set(\"access_token\",pm.response.json().access_token)",
+							"",
+							"console.log(pm.response.json().account.uuid)",
+							"pm.environment.set(\"uuid\",pm.response.json().account.uuid)",
+							"",
+							"",
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(2000)",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{email}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Origin",
+						"value": "https://www.segundamano.mx",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "tag:scmcoord.com,2013:api {{access_token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"account\":{\"email\":\"{{email}}\"}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1/private/accounts?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH /EditarDatosUser 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//Paso 1 Generar un nombre random",
+							"var nombre_usuario = pm.variables.replaceIn(\"{{$randomFirstName}}\");",
+							"pm.environment.set(\"nombre_usuario\",nombre_usuario)",
+							"",
+							"let numrand = Math.floor(Math.random() * Math.floor(123456789) + 10000);",
+							"console.log(numrand)",
+							"pm.environment.set(\"telefono\",numrand)",
+							"//Varable dinamica con el telefono",
+							"//Request dentro de un request",
+							"let getTokenRequest = {",
+							"    method: \"POST\",",
+							"    url: \"https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es\",",
+							"    header: {",
+							"        Authorization: \"Basic dGVzdDIwMjJfYWdlbnRlQG1haWxpbmF0b3IuY29tOjU0MzIx\"",
+							"    }",
+							"};",
+							"pm.sendRequest(getTokenRequest, function(err, response){",
+							"    console.log(response.json())",
+							"    pm.environment.set(\"access_token\", response.json().access_token)",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(2000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().account.email)",
+							"pm.test(\"validar que el body contenga el correo del usuario \", function(){",
+							"  pm.expect(pm.response.json().account.email)",
+							"  });",
+							"",
+							"console.log(pm.response.json().account.locations[0].label)",
+							"pm.test(\"validar que el body contenga el estado del usuario \", function(){",
+							"  pm.expect(pm.response.json().account.locations[0].label)",
+							"  });",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"user-agent": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es"
+					},
+					{
+						"key": "authorization",
+						"value": "tag:scmcoord.com,2013:api mc1xeff346777bd9ef683de95a01fbae35ccd00f3a5c_v2"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"account\":{\"name\":\"Mar12\",\"phone\":\"4578234566\",\"locations\":[{\"code\":\"5\",\"key\":\"region\",\"label\":\"Baja California Sur\",\"locations\":[{\"code\":\"51\",\"key\":\"municipality\",\"label\":\"Comondú\"}]}],\"professional\":false,\"phone_hidden\":false}}"
+				},
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1/private/accounts/11881667?lang=es",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts",
+						"11881667"
+					],
+					"query": [
+						{
+							"key": "lang",
+							"value": "es"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post/ CrearUnAnuncio 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let getTokenRequest = {",
+							"    method: \"POST\",",
+							"    url: \"https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es\",",
+							"    header: {",
+							"        Authorization: \"Basic dGVzdDIwMjJfYWdlbnRlQG1haWxpbmF0b3IuY29tOjU0MzIx\"",
+							"    }",
+							"};",
+							"pm.sendRequest(getTokenRequest, function(err, response){",
+							"    console.log(response.json())",
+							"    pm.environment.set(\"access_token\", response.json().access_token)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea mayor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(10000)",
+							"    ",
+							"})",
+							"console.log(pm.response.json().data.ad.category.label)",
+							"pm.test(\"validar que el body contenga el tipo de anuncio \", function(){",
+							"  pm.expect(pm.response.json().data.ad.category.label)",
+							"  });",
+							"",
+							"console.log(pm.response.json().data.ad.thumbnail.base_url)",
+							"pm.test(\"validar que el body contenga la url de la imagen  \", function(){",
+							"  pm.expect(pm.response.json().data.ad.thumbnail.base_url)",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "authorization",
+						"value": "Basic ZDNiNDEwMDUtOWQ4Yy00N2EzLTk1NzUtYTE5NDRlNTNjMDk2Om1jMXhlZmYzNDY3NzdiZDllZjY4M2RlOTVhMDFmYmFlMzVjY2QwMGYzYTVjX3Yy"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					},
+					{
+						"key": "x-source",
+						"value": "PHOENIX_DESKTOP"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"images\":\"6626496345.jpg\",\"category\":\"5041\",\"phone_brand\":\"15\",\"subject\":\"Samsung A10\",\"body\":\"telefono azul en buenas condiciones \",\"is_new\":\"0\",\"region\":\"5\",\"municipality\":\"51\",\"area\":\"36623\",\"price\":\"4000\",\"phone_hidden\":\"true\",\"show_phone\":\"false\",\"contact_phone\":\"4578234572\"}"
+				},
+				"url": {
+					"raw": "{{url_base}}/v2/accounts/d3b41005-9d8c-47a3-9575-a1944e53c096/up",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"v2",
+						"accounts",
+						"d3b41005-9d8c-47a3-9575-a1944e53c096",
+						"up"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put/EditarAnuncio  200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let getTokenRequest = {",
+							"    method: \"POST\",",
+							"    url: \"https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es\",",
+							"    header: {",
+							"        Authorization: \"Basic dGVzdDIwMjJfYWdlbnRlQG1haWxpbmF0b3IuY29tOjU0MzIx\"",
+							"    }",
+							"};",
+							"pm.sendRequest(getTokenRequest, function(err, response){",
+							"    console.log(response.json())",
+							"    pm.environment.set(\"access_token\", response.json().access_token)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{uuid}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-source",
+						"value": "PHOENIX_DESKTOP"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic NTA0OThmZjQtZjdhMi00MmFmLWFjYWEtZGQ2YWFiODliNGM4Om1jMXhhM2RlMGJmMjIyNTNjYTNiYjMwY2JmMWU3YjBhNTZkNTMyNTBmNzY0X3Yy"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"images\":\"6626496345.jpg\",\"category\":\"5041\",\"phone_brand\":\"15\",\"subject\":\"Samsung A10\",\"body\":\"telefono azul en buenas condiciones \",\"is_new\":\"0\",\"region\":\"5\",\"municipality\":\"51\",\"area\":\"36623\",\"price\":\"4000\",\"phone_hidden\":\"true\",\"show_phone\":\"false\",\"contact_phone\":\"4578234572\"}"
+				},
+				"url": {
+					"raw": "{{url_base}}/v2/accounts/d3b41005-9d8c-47a3-9575-a1944e53c096/up/74713159",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"v2",
+						"accounts",
+						"d3b41005-9d8c-47a3-9575-a1944e53c096",
+						"up",
+						"74713159"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete/ BorrarAnuncio 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let getTokenRequest = {",
+							"    method: \"POST\",",
+							"    url: \"https://webapi.segundamano.mx/nga/api/v1.1/private/accounts?lang=es\",",
+							"    header: {",
+							"        Authorization: \"Basic dGVzdDIwMjJfYWdlbnRlQG1haWxpbmF0b3IuY29tOjU0MzIx\"",
+							"    }",
+							"};",
+							"pm.sendRequest(getTokenRequest, function(err, response){",
+							"    console.log(response.json())",
+							"    pm.environment.set(\"access_token\", response.json().access_token)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "tag:scmcoord.com,2013:api {{access_token}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"delete_reason\":{\"code\":\"0\"}}"
+				},
+				"url": {
+					"raw": "{{url_base}}/nga/api/v1/private/accounts/{{account_id}}/klfst/{{ad_id}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"nga",
+						"api",
+						"v1",
+						"private",
+						"accounts",
+						"{{account_id}}",
+						"klfst",
+						"{{ad_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post/CrearDireccion 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"addressID\", pm.response.json().addressID)",
+							"pm.test(\"validar el estatus code response 201\", function(){",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "authorization",
+						"value": "Basic ZDNiNDEwMDUtOWQ4Yy00N2EzLTk1NzUtYTE5NDRlNTNjMDk2Om1jMXhlZmYzNDY3NzdiZDllZjY4M2RlOTVhMDFmYmFlMzVjY2QwMGYzYTVjX3Yy"
+					},
+					{
+						"key": "content-type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "contact",
+							"value": "patricia panterola",
+							"type": "text"
+						},
+						{
+							"key": "phone",
+							"value": "3434234524",
+							"type": "text"
+						},
+						{
+							"key": "rfc",
+							"value": "CAMJ9608091A2",
+							"type": "text"
+						},
+						{
+							"key": "zipCode",
+							"value": "11520",
+							"type": "text"
+						},
+						{
+							"key": "exteriorInfo",
+							"value": "lago nargis",
+							"type": "text"
+						},
+						{
+							"key": "interiorInfo",
+							"value": "23",
+							"type": "text"
+						},
+						{
+							"key": "region",
+							"value": "11",
+							"type": "text"
+						},
+						{
+							"key": "municipality",
+							"value": "300",
+							"type": "text"
+						},
+						{
+							"key": "area",
+							"value": "8087",
+							"type": "text"
+						},
+						{
+							"key": "alias",
+							"value": "departamento",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url_base}}/addresses/v1/create",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"addresses",
+						"v1",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get/ Obtener Favoritos 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"console.log(pm.response.json().data.name)",
+							"pm.test(\"validar que el body contenga name \", function(){",
+							"  pm.expect(pm.response.json().data.name)",
+							"  });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "authorization",
+						"value": "Basic ZDNiNDEwMDUtOWQ4Yy00N2EzLTk1NzUtYTE5NDRlNTNjMDk2Om1jMXhlZmYzNDY3NzdiZDllZjY4M2RlOTVhMDFmYmFlMzVjY2QwMGYzYTVjX3Yy"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/favorites/v1/private/accounts/d3b41005-9d8c-47a3-9575-a1944e53c096",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"favorites",
+						"v1",
+						"private",
+						"accounts",
+						"d3b41005-9d8c-47a3-9575-a1944e53c096"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete/ eliminarMisFavoritos 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().data.deleted)",
+							"pm.test(\"validar que el body contenga el deleted de favoritos \", function(){",
+							"  pm.expect(pm.response.json().data.deleted)",
+							"  });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "authorization",
+						"value": "Basic ZDNiNDEwMDUtOWQ4Yy00N2EzLTk1NzUtYTE5NDRlNTNjMDk2Om1jMXhlZmYzNDY3NzdiZDllZjY4M2RlOTVhMDFmYmFlMzVjY2QwMGYzYTVjX3Yy"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"list_ids\":[938769221]\n}"
+				},
+				"url": {
+					"raw": "{{url_base}}/favorites/v1/private/accounts/d3b41005-9d8c-47a3-9575-a1944e53c096",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"favorites",
+						"v1",
+						"private",
+						"accounts",
+						"d3b41005-9d8c-47a3-9575-a1944e53c096"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get/ MiBalance 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().data.balance)",
+							"pm.test(\"validar que el body contenga los datos de balance \", function(){",
+							"  pm.expect(pm.response.json().data.balance)",
+							"  });",
+							"",
+							"console.log(pm.response.json().data.balance[0].description)",
+							"pm.test(\"validar que el body contenga la descripcion \", function(){",
+							"  pm.expect(pm.response.json().data.balance[0].description)",
+							"  });",
+							"",
+							"console.log(pm.response.json().data.balance[0].detail[0].created_at)",
+							"pm.test(\"validar que el body contenga la fecha de creacion \", function(){",
+							"  pm.expect(pm.response.json().data.balance[0].detail[0].created_at)",
+							"  });",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "authorization",
+						"value": "Basic ZDNiNDEwMDUtOWQ4Yy00N2EzLTk1NzUtYTE5NDRlNTNjMDk2Om1jMXhlZmYzNDY3NzdiZDllZjY4M2RlOTVhMDFmYmFlMzVjY2QwMGYzYTVjX3Yy"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/tokens/v1/public/balance/detail/d3b41005-9d8c-47a3-9575-a1944e53c096",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"tokens",
+						"v1",
+						"public",
+						"balance",
+						"detail",
+						"d3b41005-9d8c-47a3-9575-a1944e53c096"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post/ BusquedaCategorias 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().data.urls[1])",
+							"pm.test(\"validar que el body contenga caracteristicas \", function(){",
+							"  pm.expect(pm.response.json().data.urls[1])",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "content-type",
+						"value": "application/json"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"filters\":[{\"category\":\"1000\"},{\"category\":\"1020\"},{\"category\":\"1040\"},{\"category\":\"1060\"},{\"category\":\"1080\"},{\"category\":\"1100\"},{\"category\":\"2000\"},{\"category\":\"2020\"},{\"category\":\"2040\"},{\"category\":\"2120\"},{\"category\":\"2080\"},{\"category\":\"2060\"},{\"category\":\"5000\"},{\"category\":\"5040\"},{\"category\":\"5080\"},{\"category\":\"5020\"},{\"category\":\"5060\"},{\"category\":\"3000\"},{\"category\":\"3040\"},{\"category\":\"3020\"},{\"category\":\"3060\"},{\"category\":\"3100\"},{\"category\":\"3080\"},{\"category\":\"3120\"},{\"category\":\"6000\"},{\"category\":\"6020\"},{\"category\":\"6040\"},{\"category\":\"6060\"},{\"category\":\"4000\"},{\"category\":\"4020\"},{\"category\":\"4040\"},{\"category\":\"4060\"},{\"category\":\"4100\"},{\"category\":\"4080\"},{\"category\":\"4120\"},{\"category\":\"4140\"},{\"category\":\"8000\"},{\"category\":\"8020\"},{\"category\":\"8040\"},{\"category\":\"8060\"},{\"category\":\"8080\"},{\"category\":\"8100\"},{\"category\":\"8120\"},{\"category\":\"8140\"},{\"category\":\"8160\"},{\"category\":\"8180\"},{\"category\":\"8200\"},{\"category\":\"8220\"},{\"category\":\"8240\"},{\"category\":\"9000\"},{\"category\":\"9020\"},{\"category\":\"9040\"}]}"
+				},
+				"url": {
+					"raw": "{{url_base}}/urls/v1/public/ad-listing",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"urls",
+						"v1",
+						"public",
+						"ad-listing"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get/ buscar categoria premiun 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"validar el estatus code response 200\", function(){",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Validar que el codigo de respuesta es OK\", () => {",
+							"    pm.response.to.be.ok;",
+							"})",
+							"pm.test(\"Probar que el request es exitoso\", () => {",
+							" pm.response.to.be.success;",
+							"})",
+							"pm.test(\"Probar que el tiempo de respuesta sea menor de 1 segundo\", () =>{",
+							"     pm.expect(pm.response.responseTime).to.be.below(1000)",
+							"    ",
+							"})",
+							"",
+							"console.log(pm.response.json().data.list_ids[1])",
+							"pm.test(\"validar que el body contenga caracteristicas \", function(){",
+							"  pm.expect(pm.response.json().data.list_ids[1])",
+							"  });",
+							"",
+							"console.log(pm.response.json().data.status)",
+							"pm.test(\"validar que el body contenga caracteristicas \", function(){",
+							"  pm.expect(pm.response.json().data.status)",
+							"  });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authority",
+						"value": "webapi.segundamano.mx"
+					},
+					{
+						"key": "accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "accept-language",
+						"value": "es-419,es;q=0.9"
+					},
+					{
+						"key": "origin",
+						"value": "https://www.segundamano.mx"
+					},
+					{
+						"key": "referer",
+						"value": "https://www.segundamano.mx/"
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Google Chrome\";v=\"105\", \"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"105\""
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0"
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"macOS\""
+					},
+					{
+						"key": "sec-fetch-dest",
+						"value": "empty"
+					},
+					{
+						"key": "sec-fetch-mode",
+						"value": "cors"
+					},
+					{
+						"key": "sec-fetch-site",
+						"value": "same-site"
+					},
+					{
+						"key": "user-agent",
+						"value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/highlights/v1/public/highlights/premium?region=11&category=1020&&lim=100",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"highlights",
+						"v1",
+						"public",
+						"highlights",
+						"premium"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "11"
+						},
+						{
+							"key": "category",
+							"value": "1020"
+						},
+						{
+							"key": null,
+							"value": null
+						},
+						{
+							"key": "lim",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url_base",
+			"value": "https://webapi.segundamano.mx",
+			"type": "string"
+		}
+	]
+}
